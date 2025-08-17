@@ -1,0 +1,32 @@
+name: Update Coding Progress
+
+on:
+  schedule:
+    - cron: "0 0 * * 0"   # Runs every Sunday at 00:00 UTC
+  workflow_dispatch:       # Allows manual trigger anytime
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install requests
+
+      - name: Run Update Script
+        run: python scripts/update_stats.py
+
+      - name: Commit & Push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add progress/auto-progress.md
+          git commit -m "Auto-update progress [skip ci]" || echo "No changes"
+          git push
